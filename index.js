@@ -12,6 +12,12 @@ const connection = require('./db/connection')
 const Tought = require('./models/Tought')
 const User = require('./models/User')
 
+// Import routes
+const toughtsRoutes = require('./routes/toughtsRoutes')
+
+// Import controller
+const ThoughtController = require('./controllers/ToughtController')
+
 // template engine
 app.engine('handlebars', exphbs.engine())
 app.set('view engine', 'handlebars')
@@ -57,6 +63,11 @@ app.use((req, res, next) => {
 
     next()
 })
+
+// routes
+app.use('/toughts', toughtsRoutes)
+
+app.get('/', ThoughtController.showToughts) // exibe todos os pensamentos na rota '/'
 
 connection
     .sync()
