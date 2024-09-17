@@ -1,0 +1,30 @@
+{
+  "name": "projeto-toughts",
+  "version": "1.0.0",
+  "description": "a website for people to post their thoughts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web",
+    "toughts",
+    "nodejs",
+    "mysql"
+  ],
+  "author": "Guilherme Dilio de Souza",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.1.0",
+    "express": "^4.21.0",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.18.0",
+    "mysql2": "^3.11.3",
+    "nodemon": "^3.1.4",
+    "sequelize": "^6.37.3",
+    "session-file-store": "^1.5.0"
+  }
+}
