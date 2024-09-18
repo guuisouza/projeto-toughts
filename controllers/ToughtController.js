@@ -63,4 +63,26 @@ module.exports = class ThoughtController {
             console.log(err)
         }
     }
+
+    static async removeTought(req, res) {
+
+        const toughtId = req.body.id
+        const userId = req.session.userid
+        
+        try {
+
+            await Tought.destroy({
+                where: {id: toughtId, UserId: userId} // filtro duplo
+            })
+    
+            req.flash('message', 'Pensamento excluido com sucesso')
+
+            // salva a sessão
+            req.session.save(() => {
+                res.redirect('/toughts/dashboard')
+            })
+        } catch(err) {
+            console.log(err)
+        }
+    }
 }
