@@ -7,7 +7,14 @@
     <ul>
         {{#each toughts}}
             <li>
-                {{this.title}}
+                <span class="label">{{this.title}}</span>
+                <span class="actions">
+                    <a href="/" class="btn">Editar</a>
+                    <form action="/">
+                        <input type="hidden" name="id" value="{{this.id}}">
+                        <input type="submit" value="Excluir" class="btn">
+                    </form>
+                </span>
             </li>
         {{/each}}
     </ul>
