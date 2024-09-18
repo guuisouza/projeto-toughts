@@ -7,7 +7,35 @@ module.exports = class ThoughtController {
     }
 
     static async dashboard(req, res) {
-        res.render('toughts/dashboard')
+
+        const userId = req.session.userid // pega o id do usuário pela sessão
+
+        // verifica se o usuario existe -> boa prática
+        const user = await User.findOne({
+            where: {id: userId},
+            include: Tought, // tras todos os dados associados ao usuario na tabela de toughts
+            plain: true
+        })
+
+        // se nao veio nenhum dado do usuário então ele não existe
+        if (!user) {
+            res.redirect('/login')
+        }
+
+        // manipulação para trazer só as tarefas, será feito um loop no handlebars para exibilas
+        const toughts = user.Toughts.map((tought) => tought.dataValues)
+
+        /*[
+            {
+              id: 1,
+              title: 'Meu primeiro pensamento!',
+              createdAt: 2024-09-18T19:53:07.000Z,
+              updatedAt: 2024-09-18T19:53:07.000Z,
+              UserId: 3
+            }
+        ]*/
+
+        res.render('toughts/dashboard', { toughts })
     }
 
     static createTought(req, res) {
