@@ -7,6 +7,7 @@ const ToughtController = require('../controllers/ToughtController')
 const checkAuth = require('../helpers/auth') // sempre que precisar proteger uma rota
 
 router.get('/add', checkAuth, ToughtController.createTought) // manda a view de add tought
+router.post('/add', checkAuth, ToughtController.createToughtSave) // cria um tought pelo post
 router.get('/dashboard', checkAuth, ToughtController.dashboard)
 router.get('/', ToughtController.showToughts)
 
