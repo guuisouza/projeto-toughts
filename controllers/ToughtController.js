@@ -12,6 +12,14 @@ module.exports = class ThoughtController {
             search = req.query.search // adiciona em search o que veio na query de search (url)
         }
 
+        // definindo ORDEM da busca       
+        let order = 'DESC'
+
+        if(req.query.order === 'old') { // este order vem do input de cada form que tem os botoes de ordenar
+            order = 'ASC'
+        } else {
+            order = 'DESC'
+        }
 
         // exibe todos os pensamentos de todos
         const toughtsData = await Tought.findAll({
@@ -20,7 +28,8 @@ module.exports = class ThoughtController {
             where: {
                 // filtra o titulo para que contenha o que vem em search
                 title: {[Op.like]: `%${search}%`}
-            }
+            },
+            order: [['createdAt', order]] // ordena por data de criacao, usando a ordem de busca que definimos
         })
 
         // usuario e pensamento é jogado no mesmo array
