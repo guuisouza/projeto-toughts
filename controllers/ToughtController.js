@@ -3,7 +3,17 @@ const User = require('../models/User')
 
 module.exports = class ThoughtController {
     static async showToughts(req, res) {
-        res.render('toughts/home')
+
+        // exibe todos os pensamentos de todos
+        const toughtsData = await Tought.findAll({
+            // traz junto o user de cada pensamento
+            include: User
+        })
+
+        // usuario e pensamento é jogado no mesmo array
+        const toughts = toughtsData.map((tought) => tought.get({ plain: true }))
+
+        res.render('toughts/home', { toughts })
     }
 
     static async dashboard(req, res) {
