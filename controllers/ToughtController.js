@@ -35,7 +35,14 @@ module.exports = class ThoughtController {
             }
         ]*/
 
-        res.render('toughts/dashboard', { toughts })
+        // implementa uma lógica para exibir uma mensagem caso nao tenha pensamentos
+        let emptyToughts = false
+
+        if(toughts.length === 0) {
+            emptyToughts = true
+        }
+
+        res.render('toughts/dashboard', { toughts, emptyToughts })
     }
 
     static createTought(req, res) {
