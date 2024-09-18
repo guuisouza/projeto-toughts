@@ -92,4 +92,13 @@ module.exports = class ThoughtController {
             console.log(err)
         }
     }
+
+    static async updateTought(req, res) {
+
+        const toughtId = req.params.id
+        
+        const tought = await Tought.findOne({ where: {id: toughtId}, raw: true })
+
+        res.render('toughts/edit', { tought })
+    }
 }
