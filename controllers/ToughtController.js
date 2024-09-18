@@ -1,19 +1,37 @@
 const Tought = require('../models/Tought')
 const User = require('../models/User')
 
+const { Op } = require('sequelize')
+
 module.exports = class ThoughtController {
     static async showToughts(req, res) {
+
+        let search = '' // altera o valor se veio algo na busca
+
+        if(req.query.search) {
+            search = req.query.search // adiciona em search o que veio na query de search (url)
+        }
+
 
         // exibe todos os pensamentos de todos
         const toughtsData = await Tought.findAll({
             // traz junto o user de cada pensamento
-            include: User
+            include: User,
+            where: {
+                // filtra o titulo para que contenha o que vem em search
+                title: {[Op.like]: `%${search}%`}
+            }
         })
 
         // usuario e pensamento é jogado no mesmo array
         const toughts = toughtsData.map((tought) => tought.get({ plain: true }))
 
-        res.render('toughts/home', { toughts })
+        // exibe quantos pensamentos vieram com aquela busca
+        let toughtsQty = toughts.length
+        if(toughtsQty === 0) {
+            toughtsQty = false
+        }
+        res.render('toughts/home', { toughts, search, toughtsQty })
     }
 
     static async dashboard(req, res) {
