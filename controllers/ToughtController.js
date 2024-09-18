@@ -101,4 +101,25 @@ module.exports = class ThoughtController {
 
         res.render('toughts/edit', { tought })
     }
+
+    static async updateToughtPost(req, res) {
+
+        const id = req.body.id
+
+        const updatedTought = {
+            title: req.body.title
+        }
+
+        try {
+            await Tought.update(updatedTought, {where: {id: id}})
+            req.flash('message', 'Pensamento atualizado com sucesso')
+
+            // salva a sessão
+            req.session.save(() => {
+                res.redirect('/toughts/dashboard')
+            })
+        } catch(err) {
+            console.log(err)
+        }
+    }
 }
