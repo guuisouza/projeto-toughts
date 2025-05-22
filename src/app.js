@@ -2,6 +2,7 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const flash = require('express-flash')
 const path = require('path')
+require('dotenv').config()
 
 const session = require('./config/session')
 const sessionMiddleware = require('./middlewares/sessionMiddleware')

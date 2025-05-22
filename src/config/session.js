@@ -5,7 +5,7 @@ const os = require('os')
 
 module.exports = session({
   name: 'session',
-  secret: 'nosso_secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: new FileStore({
