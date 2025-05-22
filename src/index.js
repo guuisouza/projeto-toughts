@@ -4,6 +4,6 @@ const connection = require('./db/connection')
 connection
   .sync()
   .then(() => {
-    app.listen(3000, () => console.log('Servidor rodando na porta 3000'))
+    app.listen(8123, () => console.log('Servidor rodando na porta 8123'))
   })
   .catch((err) => console.log(err))
