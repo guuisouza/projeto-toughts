@@ -5,6 +5,7 @@ const FileStore = require('session-file-store')(session)
 const flash = require('express-flash')
 
 const app = express()
+const path = require('path');
 
 const connection = require('./db/connection')
 
@@ -22,6 +23,8 @@ const ThoughtController = require('./controllers/ToughtController')
 // template engine
 app.engine('handlebars', exphbs.engine())
 app.set('view engine', 'handlebars')
+app.set('views', path.join(__dirname, 'views')) // <- agora aponta para src/views
+
 
 // receber resposta do body
 app.use(express.urlencoded({extended: true}))
@@ -51,7 +54,7 @@ app.use(
 app.use(flash())
 
 // arquivos publicos
-app.use(express.static('public'))
+app.use(express.static('src/public'))
 
 // set session to response 
 app.use((req, res, next) => { 

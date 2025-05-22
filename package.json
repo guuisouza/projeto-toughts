@@ -1,11 +1,11 @@
 {
   "name": "projeto-toughts",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "a website for people to post their thoughts",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./index.js localhost 3000"
+    "start": "nodemon src/index.js"
   },
   "keywords": [
     "web",
