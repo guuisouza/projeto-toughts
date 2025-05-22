@@ -2,16 +2,13 @@ const express = require('express')
 const router = express.Router()
 const ToughtController = require('../controllers/ToughtController')
 
-//helpers 
+const authMiddleware = require('../middlewares/authMiddleware')
 
-const checkAuth = require('../helpers/auth') // sempre que precisar proteger uma rota
-
-router.get('/add', checkAuth, ToughtController.createTought) // manda a view de add tought
-router.post('/add', checkAuth, ToughtController.createToughtSave) // cria um tought pelo post
-router.get('/edit/:id', checkAuth, ToughtController.updateTought) // manda a view de edit tought
-router.post('/edit', checkAuth, ToughtController.updateToughtPost) // atualiza um tought
-router.post('/remove', checkAuth, ToughtController.removeTought)
-router.get('/dashboard', checkAuth, ToughtController.dashboard)
+router.get('/add', authMiddleware, ToughtController.createTought)
+router.post('/add', authMiddleware, ToughtController.createToughtSave)
+router.get('/edit/:id', authMiddleware, ToughtController.updateTought)
+router.post('/edit', authMiddleware, ToughtController.updateToughtPost) 
+router.post('/remove', authMiddleware, ToughtController.removeTought)
+router.get('/dashboard', authMiddleware, ToughtController.dashboard)
 router.get('/', ToughtController.showToughts)
-
 module.exports = router
