@@ -1,21 +1,18 @@
-const session = require('express-session')
-const FileStore = require('session-file-store')(session)
-const path = require('path')
-const os = require('os')
+const session = require('express-session');
+const Redis = require('ioredis');
+const RedisStore = require('connect-redis')(session);
+
+const redisClient = new Redis(process.env.REDIS_URL);
 
 module.exports = session({
   name: 'session',
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: new FileStore({
-    logFn: function () {},
-    path: path.join(os.tmpdir(), 'sessions')
-  }),
+  store: new RedisStore({ client: redisClient }),
   cookie: {
-    secure: false,
+    secure: false, // Defina true se for HTTPS
     maxAge: 3600000,
-    expires: new Date(Date.now() + 3600000),
     httpOnly: true
   }
-})
+});
