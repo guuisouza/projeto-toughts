@@ -55,5 +55,4 @@ jobs:
             docker rm guuiisouza-toughts-app || true
 
             # Criar e iniciar o novo container da aplicação
-            docker run --name guuiisouza-toughts-app --network guuiisouza-toughts -p 8123:8123 -d ${{ secrets.DOCKER_USERNAME }}/toughts-app:latest
-
+            docker run --name guuiisouza-toughts-app --network guuiisouza-toughts -p 8123:8123 -e REDIS_URL=${{ secrets.REDIS_URL }} -e SESSION_SECRET='${{ secrets.SESSION_SECRET }}' -e MYSQL_DB=${{ secrets.MYSQL_DB }} -e MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} -e MYSQL_USER=${{ secrets.MYSQL_USER }} -d ${{ secrets.DOCKER_USERNAME }}/toughts-app:latest
