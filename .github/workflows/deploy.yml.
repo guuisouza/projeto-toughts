@@ -1,0 +1,59 @@
+name: Deploy TESTWE Application
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/toughts-app:latest
+
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: 201.23.3.86
+          username: aluno
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Criar rede Docker personalizada
+            docker network create guuiisouza-toughts || true
+
+            # Criar volumes persistentes para MySQL e Redis
+            docker volume create guuiisouza-toughts-mysql-data || true
+            docker volume create guuiisouza-toughts-redis-data || true
+
+            # Criar e iniciar o container MySQL (se não existir)
+            docker ps -a --filter "name=guuiisouza-toughts-mysql" --format '{{.Names}}' | grep -q guuiisouza-toughts-mysql || docker run --name guuiisouza-toughts-mysql --network guuiisouza-toughts -p 8124:3306 -e MYSQL_ROOT_PASSWORD=g12171928 -e MYSQL_DATABASE=toughts2 -v guuiisouza-toughts-mysql-data:/var/lib/mysql -d mysql:8.0
+
+            # Criar e iniciar o container Redis (se não existir)
+            docker ps -a --filter "name=guuiisouza-toughts-redis" --format '{{.Names}}' | grep -q guuiisouza-toughts-redis || docker run --name guuiisouza-toughts-redis --network guuiisouza-toughts -p 8125:6379 -v guuiisouza-toughts-redis-data:/data -d redis:7-alpine
+
+            # Parar e remover o container da aplicação antiga (se existir)
+            docker stop guuiisouza-toughts-app || true
+            docker rm guuiisouza-toughts-app || true
+
+            # Criar e iniciar o novo container da aplicação
+            docker run --name guuiisouza-toughts-app --network guuiisouza-toughts -p 8123:8123 -d ${{ secrets.DOCKER_USERNAME }}/toughts-app:latest
+
