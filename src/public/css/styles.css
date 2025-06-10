@@ -2,7 +2,7 @@
     font-family: Helvetica, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #0d3306;
+    background-color: #222;
     color: #fff;
 }
 
@@ -17,9 +17,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #34cc20;
+    background-color: #da480f;
     color: #fff;
-    border-bottom: 1px solid #f6982d;
+    border-bottom: 1px solid #222;
 }
 
 #navbar ul {
