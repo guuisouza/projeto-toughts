@@ -73,6 +73,7 @@ jobs:
             docker run --rm \
               --network guuiisouza-toughts \
               -v "$(pwd):/usr/src" \
+              -u "$(id -u):$(id -g)" \
               sonarsource/sonar-scanner-cli \
               -Dsonar.projectKey=toughts-app \
               -Dsonar.projectName="Toughts App" \
