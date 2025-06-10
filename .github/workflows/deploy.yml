@@ -1,4 +1,4 @@
-name: Deploy TESTWE Application
+name: Deploy Application with SonarQube Analysis
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,6 +29,58 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/toughts-app:latest
 
+  sonarqube-analysis:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: SSH into server and run SonarQube
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: 201.23.3.86
+          username: aluno
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Iniciar container SonarQube temporário
+            docker run --name sonarqube-toughts --network guuiisouza-toughts -d -p 8126:9000 sonarqube:lts
+
+            # Esperar o SonarQube inicializar (com verificação)
+            echo "Aguardando inicialização do SonarQube..."
+            for i in {1..30}; do
+              if docker logs sonarqube-toughts 2>&1 | grep -q "SonarQube is operational"; then
+                break
+              fi
+              sleep 10
+            done
+
+            # Executar análise
+            docker run --rm \
+              --network guuiisouza-toughts \
+              -e SONAR_HOST_URL="http://sonarqube-toughts:9000" \
+              -e SONAR_LOGIN=${{ secrets.SONAR_TOKEN }} \
+              -v "$(pwd):/usr/src" \
+              sonarsource/sonar-scanner-cli \
+              -Dsonar.projectKey=toughts-app \
+              -Dsonar.projectName="Toughts App" \
+              -Dsonar.projectVersion=1.0 \
+              -Dsonar.sources=. \
+              -Dsonar.sourceEncoding=UTF-8 \
+              -Dsonar.qualitygate.wait=true
+
+            # Parar e remover container SonarQube
+            docker stop sonarqube-toughts
+            docker rm sonarqube-toughts
+
+  deploy:
+    needs: sonarqube-analysis
+    if: success() # Só executa se o SonarQube passar
+    runs-on: ubuntu-latest
+
+    steps:
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v0.1.5
         with:
