@@ -32,11 +32,11 @@ jobs:
   sonarqube-analysis:
     needs: build-and-push
     runs-on: ubuntu-latest
-  
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-  
+
       - name: SSH into server and run SonarQube
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -47,7 +47,7 @@ jobs:
           script: |
             # Iniciar container SonarQube temporário
             docker run --name sonarqube-toughts --network guuiisouza-toughts -d -p 8126:9000 sonarqube:lts
-  
+
             # Esperar o SonarQube inicializar (com verificação)
             echo "Aguardando inicialização do SonarQube..."
             for i in {1..30}; do
@@ -56,11 +56,11 @@ jobs:
               fi
               sleep 10
             done
-  
+
             # Gerar token temporário via API SonarQube (sem jq, usando grep)
             echo "Gerando token temporário do SonarQube..."
             TOKEN=$(curl -s -u admin:admin -X POST "http://localhost:8126/api/user_tokens/generate" -d "name=github-action-token" | grep -oP '"token":"\K[^"]+')
-  
+
             if [ -z "$TOKEN" ]; then
               echo "Falha ao gerar token do SonarQube"
               docker stop sonarqube-toughts
@@ -68,12 +68,17 @@ jobs:
               exit 1
             fi
             echo "Token gerado com sucesso."
-  
+
+            # Ajustar permissões do diretório para leitura universal
+            echo "Ajustando permissões do diretório para análise..."
+            chmod -R a+r "$(pwd)"
+
             # Executar análise com o token gerado
             docker run --rm \
               --network guuiisouza-toughts \
               -v "$(pwd):/usr/src" \
               -u "$(id -u):$(id -g)" \
+              -e SONAR_USER_HOME=/tmp/.sonar-scanner \
               sonarsource/sonar-scanner-cli \
               -Dsonar.projectKey=toughts-app \
               -Dsonar.projectName="Toughts App" \
@@ -83,14 +88,14 @@ jobs:
               -Dsonar.host.url=http://sonarqube-toughts:9000 \
               -Dsonar.login="$TOKEN" \
               -Dsonar.qualitygate.wait=true
-  
+
             # Parar e remover container SonarQube
             docker stop sonarqube-toughts
             docker rm sonarqube-toughts
 
   deploy:
     needs: sonarqube-analysis
-    if: success() # Só executa se o SonarQube passar
+    if: success()
     runs-on: ubuntu-latest
 
     steps:
