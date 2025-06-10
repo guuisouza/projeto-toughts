@@ -32,11 +32,11 @@ jobs:
   sonarqube-analysis:
     needs: build-and-push
     runs-on: ubuntu-latest
-
+  
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+  
       - name: SSH into server and run SonarQube
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -47,7 +47,7 @@ jobs:
           script: |
             # Iniciar container SonarQube temporário
             docker run --name sonarqube-toughts --network guuiisouza-toughts -d -p 8126:9000 sonarqube:lts
-
+  
             # Esperar o SonarQube inicializar (com verificação)
             echo "Aguardando inicialização do SonarQube..."
             for i in {1..30}; do
@@ -56,12 +56,24 @@ jobs:
               fi
               sleep 10
             done
-
-            # Executar análise
+  
+            # Gerar token temporário via API SonarQube (sem jq, usando grep)
+            echo "Gerando token temporário do SonarQube..."
+            TOKEN=$(curl -s -u admin:admin -X POST "http://localhost:8126/api/user_tokens/generate" -d "name=github-action-token" | grep -oP '"token":"\K[^"]+')
+  
+            if [ -z "$TOKEN" ]; then
+              echo "Falha ao gerar token do SonarQube"
+              docker stop sonarqube-toughts
+              docker rm sonarqube-toughts
+              exit 1
+            fi
+            echo "Token gerado com sucesso."
+  
+            # Executar análise com o token gerado
             docker run --rm \
               --network guuiisouza-toughts \
               -e SONAR_HOST_URL="http://sonarqube-toughts:9000" \
-              -e SONAR_LOGIN=${{ secrets.SONAR_TOKEN }} \
+              -e SONAR_LOGIN="$TOKEN" \
               -v "$(pwd):/usr/src" \
               sonarsource/sonar-scanner-cli \
               -Dsonar.projectKey=toughts-app \
@@ -70,7 +82,7 @@ jobs:
               -Dsonar.sources=. \
               -Dsonar.sourceEncoding=UTF-8 \
               -Dsonar.qualitygate.wait=true
-
+  
             # Parar e remover container SonarQube
             docker stop sonarqube-toughts
             docker rm sonarqube-toughts
