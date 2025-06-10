@@ -72,8 +72,6 @@ jobs:
             # Executar análise com o token gerado
             docker run --rm \
               --network guuiisouza-toughts \
-              -e SONAR_HOST_URL="http://sonarqube-toughts:9000" \
-              -e SONAR_LOGIN="$TOKEN" \
               -v "$(pwd):/usr/src" \
               sonarsource/sonar-scanner-cli \
               -Dsonar.projectKey=toughts-app \
@@ -81,6 +79,8 @@ jobs:
               -Dsonar.projectVersion=1.0 \
               -Dsonar.sources=. \
               -Dsonar.sourceEncoding=UTF-8 \
+              -Dsonar.host.url=http://sonarqube-toughts:9000 \
+              -Dsonar.login="$TOKEN" \
               -Dsonar.qualitygate.wait=true
   
             # Parar e remover container SonarQube
